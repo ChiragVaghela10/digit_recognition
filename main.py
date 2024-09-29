@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from kNN import algorithms
 
-with open('mfeat-pix.txt', 'r', encoding='ascii') as dataFile:
+with open('data/mfeat-pix.txt', 'r', encoding='ascii') as dataFile:
     mfeat_pix = pd.read_table(dataFile, sep='  ', header=None, engine='python').values
 
 total_digits = 10
