@@ -2,14 +2,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from kNN import algorithms
-
+from contants import *
 with open('data/mfeat-pix.txt', 'r', encoding='ascii') as dataFile:
     mfeat_pix = pd.read_table(dataFile, sep='  ', header=None, engine='python').values
 
-total_digits = 10
-digits_repetition = 200
-image_size = 16 * 15
-trainRatio = 0.8
 
 # Image Dataset is reshaped into 10X200x240 for easier indexing.
 new_shape = mfeat_pix.reshape(total_digits, digits_repetition, image_size)

@@ -34,7 +34,7 @@ The project also evaluate accuracy versus K number of neighbors.
 
 ### Results
 
-The following figure shows graph of accuracy vs K neighbors:
+The following figure shows graph of accuracy vs K neighbors:<br/><br/>
 ![Accuracy vs K](blob/Accuracy_vs_K.png)
 
 ## Installation
