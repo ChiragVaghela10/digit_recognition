@@ -18,6 +18,12 @@ The following figure shows 10 pictures of each digit (0-9) using data from digit
 
 ## Neural Networks
 
+### Algorithm
+...
+
+### Results
+...
+
 ## K-Nearest Neighbours
 
 ### Algorithm
@@ -36,6 +42,14 @@ The project also evaluate accuracy versus K number of neighbors.
 
 The following figure shows graph of accuracy vs K neighbors:<br/><br/>
 ![Accuracy vs K](blob/Accuracy_vs_K.png)
+
+##### Findings
+
+The plot is an illustration of 'Elbow Method' and shows that the accuracy peaks when k is in range of 5 - 10. Then the
+accuracy sharply decreases indicating accuracy peak as overfit of the model. The sharp decrease in accuracy is due
+distinct features of the digits present in data and to the generalization of model. The further slow decrease in
+accuracy is supported by the fact that overall cost function is non-increasing function which is to calculate minimum
+distance between mean (centroid) and the data points. 
 
 ## Installation
 1. Create a virtual environment.
