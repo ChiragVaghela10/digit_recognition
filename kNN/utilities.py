@@ -1,5 +1,9 @@
 import operator
 import collections as cl
+from pathlib import Path
+from typing import Tuple
+
+import pandas as pd
 
 
 def euDistance(pointA, pointB):
@@ -41,3 +45,17 @@ def findAccuracy(testedSamples):
         if prediction[0] == prediction[2]:
             correctPredictions += 1
     return correctPredictions / len(testedSamples)
+
+
+class DataHandler(object):
+    def __init__(self, filepath: Path) -> None:
+        pass
+
+    def read_data(self) -> pd.DataFrame:
+        pass
+
+    def split_data(self, split_ratio) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        pass
+
+    def plot_data_instance(self):
+        pass

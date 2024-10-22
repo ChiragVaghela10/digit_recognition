@@ -50,10 +50,10 @@ accuracy sharply decreases indicating accuracy peak as overfit of the model. The
 to the generalization of model. The further slow decrease in accuracy is supported by the fact that overall cost
 function is non-increasing function which is to calculate minimum distance between mean (centroid) and the data points. 
 The elbow curve is **not a smooth decreasing function** indicating reliability of the chosen method to determine optimum
-value of K. The reason for non-smoothness and more like elbow shape is because each hand-written digit group (group of 
+value of K. The reason for non-smoothness and more like elbow shape is because each handwritten digit group (group of 
 samples indicating 0s, 1s and so on) has distinct features of that particular digit present in the data (i.e. numerical
-representation) and when K reaches near the optimum value, the model generalizes. This is a trade off for the decrease in 
-train cost vs increase in test cost leading to little bit lesser accuracy than smaller values of K (overfit case).
+representation) and when K reaches near the optimum value, the model generalizes. This is a trade-off for the decrease
+in train cost vs increase in test cost leading to little bit lesser accuracy than smaller values of K (overfit case).
 
 ## Installation
 1. Create a virtual environment.
@@ -63,4 +63,4 @@ pip install -r requirements.txt
 ```
 
 ## Future Prospects
-
+...
