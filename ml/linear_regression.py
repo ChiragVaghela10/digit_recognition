@@ -1,8 +1,11 @@
+import math
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from typing import Tuple, List
 
+from contants import total_digits, digits_repetition, image_size, trainRatio
 from ml.models import Model
 
 
@@ -13,8 +16,7 @@ class LinearRegression(Model):
         self.b_init = None
         self.w_min = None
         self.b_min = None
-        self.alpha = None
-        self.iters = None
+        self.cost_list = []
 
     def compute_gradient(self, xTrain: np.array, yTrain: np.array, w: np.array, b: np.array) -> Tuple[np.array, np.array]:
         m = xTrain.shape[0]
@@ -47,26 +49,37 @@ class LinearRegression(Model):
             return cost
 
     def plot_cost(self, cost_data: List[float]):
-        plt.plot(cost_data[:10])
+        plt.plot(cost_data)
         plt.show()
+
+    def plot_result(self, pred: np.array, target: np.array, error: np.array):
+        samples = len(target)
+        pred = np.round(pred)
+        correct_pred = sum(pred[:, 0] == target)
+        print('Correct Prediction: {},  Total:{}, Accuracy: {}'.format(correct_pred,
+                                                                       samples, correct_pred / samples))
+        plt.plot(pred, "-r", label='prediction')
+        plt.plot(target, "-b", label='target')
+        plt.legend(loc="upper right")
+        plt.show()
+        pass
 
     def gradient_descent(self, xTrain: np.array, yTrain: np.array, w_init: np.array, b_init: np.array, alpha: float,
                          iters: int) -> Tuple[np.array, np.array]:
         w = w_init
         b = b_init
-        cost_list = []
         for i in range(iters):
             print('Starting iteration {} ...'.format(i))
             cost = self.compute_cost(xTrain, yTrain, w, b)
             print('Cost after iteration {}: {}'.format(i, cost))
-            cost_list.append(cost)
+            self.cost_list.append(cost)
             dw, db = self.compute_gradient(xTrain, yTrain, w, b)
             w_tmp = w - alpha * dw
             b_tmp = b - alpha * db
             w = w_tmp
             b = b_tmp
 
-        self.plot_cost(cost_list)
+        self.plot_cost(self.cost_list)
         return w, b
 
     def train(self, xTrain: np.array, yTrain: np.array, w_init: np.array, b_init: np.array,
@@ -83,8 +96,7 @@ class LinearRegression(Model):
     def predict(self, xTest: np.array, yTest: np.array, wMin: np.array, bMin: float) -> np.array:
         print('Predicting...')
         y_pred, rmse = self.compute_cost(data=xTest, target=yTest, w=wMin, b=bMin, get_y_pred=True)
-        print("Prediction : {}".format(y_pred))
-        print('RMSE: {}'.format(rmse))
+        self.plot_result(y_pred, yTest, rmse)
 
 
 class Normalizer(object):
@@ -98,18 +110,43 @@ class Normalizer(object):
         if self.sigma is None:
             self.sigma = np.std(X, axis=0)
         print("mu and sigma are: {}, {}".format(self.mu, self.sigma))
-        X_norm = (X - self.mu) / self.sigma
-        return X_norm
+        x_norm = (X - self.mu) / self.sigma
+        return x_norm
 
 
-X_train = np.arange(1, 11).reshape(-1, 1)
-y_train = X_train ** 2
-X_test = np.arange(11, 16).reshape(-1, 1)
-y_test = X_test ** 2
+class OneHotEncoder(object):
+    def __init__(self):
+        pass
+
+    def encode(self, X):
+        pass
+
+    def decode(self, X):
+        pass
+
+
+with open('img_data.txt', 'r', encoding='ascii') as dataFile:
+    mfeat_pix = pd.read_table(dataFile, sep='  ', header=None, engine='python').values
+    img_data = mfeat_pix.reshape(total_digits, digits_repetition, image_size)
+
+X_train = img_data[:, :int(digits_repetition * trainRatio), :]
+X_train = X_train.reshape(int(total_digits * digits_repetition * trainRatio), image_size)
+elems = np.arange(1, 10, 1)
+y_train = np.zeros(1600) # np.repeat(elems, 160) # 200 * trainRatio
+y_train[:160] = 1
+X_test = img_data[:, int(digits_repetition * trainRatio):, :]
+X_test = X_test.reshape(math.ceil(total_digits * digits_repetition * (1 - trainRatio)), image_size)
+y_test = np.zeros(400) # np.repeat(elems, 40)  # 200 * trainRatio
+y_test[:40] = 1
+
+#X_train = np.arange(1, 11).reshape(-1, 1)
+#y_train = X_train ** 2
+#X_test = np.arange(11, 16).reshape(-1, 1)
+#y_test = X_test ** 2
 
 # Feature Engineering
-X_train = np.c_[X_train, X_train ** 2, X_train ** 3]
-X_test = np.c_[X_test, X_test ** 2, X_test ** 3]
+#X_train = np.c_[X_train, X_train ** 2, X_train ** 3]
+#X_test = np.c_[X_test, X_test ** 2, X_test ** 3]
 
 # Normalization
 normalizer = Normalizer()
@@ -119,7 +156,7 @@ X_test = normalizer.normalize(X_test)
 W_init = np.array(np.zeros(X_train.shape[1]))
 b_init = np.array(np.zeros(1))
 
-my_model = LinearRegression()
-w_min, b_min = my_model.train(xTrain=X_train, yTrain=y_train, w_init=W_init, b_init=b_init, learning_rate=5e-1, iterations=15000)
-my_model.predict(xTest=X_test, yTest=y_test, wMin=w_min, bMin=b_min)
-
+linear_regressor = LinearRegression()
+w_min, b_min = linear_regressor.train(xTrain=X_train, yTrain=y_train, w_init=W_init, b_init=b_init,
+                                      learning_rate=1e-2, iterations=1000)
+linear_regressor.predict(xTest=X_test, yTest=y_test, wMin=w_min, bMin=b_min)
