@@ -20,33 +20,35 @@ class LinearRegression(Model):
 
     def compute_gradient(self, xTrain: np.array, yTrain: np.array, w: np.array, b: np.array) -> Tuple[np.array, np.array]:
         m = xTrain.shape[0]
+        n = xTrain.shape[1]
         y_hat = np.zeros(m).reshape(-1, 1)
 
-        dw, db = 0, 0
+        dw, db = np.zeros((n, 10)), np.zeros(10)
         for i in range(m):
-            y_hat[i] = np.dot(xTrain[i], w) + b
-            dw += (y_hat[i] - yTrain[i]) * xTrain[i]
-            db += y_hat[i] - yTrain[i]
+            y_hat[i] = np.dot(xTrain[i], w[:, 0]) + b[0]
+            dw[:, 0] += (y_hat[i] - yTrain[i, 0]) * xTrain[i]
+            db[0] += y_hat[i] - yTrain[i, 0]
 
-        dw = dw / m
-        db = db / m
-        return dw, db
+        dw[:, 0] = dw[:, 0] / m
+        db[0] = db[0] / m
+        return dw[:, 0], db[0]
 
     def compute_cost(self, data: np.array, target: np.array, w: np.array, b: np.array,
                      get_y_pred: bool = False) -> [float, Tuple[np.ndarray, float]]:
         m = data.shape[0]
+        cost = np.zeros(10)
+        #for j in range(n):
         y_hat = np.zeros(m).reshape(-1, 1)
-        cost = 0
 
         for i in range(m):
-            y_hat[i] = np.dot(data[i], w) + b
-            cost += (y_hat[i] - target[i]) ** 2
+            y_hat[i] = np.dot(data[i], w[:, 0]) + b[0]
+            cost[0] += (y_hat[i] - target[i, 0]) ** 2
 
-        cost = cost / (2 * m)
+        cost[0] = cost[0] / (2 * m)
         if get_y_pred:
-            return y_hat, cost
+            return y_hat, cost[0]
         else:
-            return cost
+            return cost[0]
 
     def plot_cost(self, cost_data: List[float]):
         plt.plot(cost_data)
@@ -55,11 +57,11 @@ class LinearRegression(Model):
     def plot_result(self, pred: np.array, target: np.array, error: np.array):
         samples = len(target)
         pred = np.round(pred)
-        correct_pred = sum(pred[:, 0] == target)
+        correct_pred = sum(pred[:, 0] == target[:, 0])
         print('Correct Prediction: {},  Total:{}, Accuracy: {}'.format(correct_pred,
                                                                        samples, correct_pred / samples))
         plt.plot(pred, "-r", label='prediction')
-        plt.plot(target, "-b", label='target')
+        plt.plot(target[:, 0], "-b", label='target')
         plt.legend(loc="upper right")
         plt.show()
         pass
@@ -74,10 +76,10 @@ class LinearRegression(Model):
             print('Cost after iteration {}: {}'.format(i, cost))
             self.cost_list.append(cost)
             dw, db = self.compute_gradient(xTrain, yTrain, w, b)
-            w_tmp = w - alpha * dw
-            b_tmp = b - alpha * db
-            w = w_tmp
-            b = b_tmp
+            w_tmp = w[:, 0] - alpha * dw
+            b_tmp = b[0] - alpha * db
+            w[:, 0] = w_tmp
+            b[0] = b_tmp
 
         self.plot_cost(self.cost_list)
         return w, b
@@ -118,8 +120,11 @@ class OneHotEncoder(object):
     def __init__(self):
         pass
 
-    def encode(self, X):
-        pass
+    def encode(self, X: np.array, categories: int = None) -> np.array:
+        if categories is None:
+            categories = np.unique(X).shape[0]
+        res = np.eye(categories)[np.array(X).reshape(-1)]
+        return res.reshape(list(X.shape) + [categories])
 
     def decode(self, X):
         pass
@@ -129,15 +134,41 @@ with open('img_data.txt', 'r', encoding='ascii') as dataFile:
     mfeat_pix = pd.read_table(dataFile, sep='  ', header=None, engine='python').values
     img_data = mfeat_pix.reshape(total_digits, digits_repetition, image_size)
 
+# Get X_train with (10, 160, 240) shape
 X_train = img_data[:, :int(digits_repetition * trainRatio), :]
-X_train = X_train.reshape(int(total_digits * digits_repetition * trainRatio), image_size)
-elems = np.arange(1, 10, 1)
-y_train = np.zeros(1600) # np.repeat(elems, 160) # 200 * trainRatio
-y_train[:160] = 1
+# Convert X_train to (1600, 240) shape
+X_train = X_train.reshape(np.round(total_digits * digits_repetition * trainRatio).astype(int), image_size)
+# Get X_test with (10, 40 ,240) shape
 X_test = img_data[:, int(digits_repetition * trainRatio):, :]
-X_test = X_test.reshape(math.ceil(total_digits * digits_repetition * (1 - trainRatio)), image_size)
-y_test = np.zeros(400) # np.repeat(elems, 40)  # 200 * trainRatio
-y_test[:40] = 1
+# Convert X_test to (400, 240) shape
+X_test = X_test.reshape(np.round(total_digits * digits_repetition * (1 - trainRatio)).astype(int), image_size)
+
+# y_train_new = y_train.reshape(int(total_digits * digits_repetition * trainRatio), total_digits) # also encodes
+
+encoder = OneHotEncoder()
+
+# Create y_train with 160 repetitions of each digit in order
+y_train = np.repeat(np.arange(total_digits), np.round(digits_repetition * trainRatio))
+# One hot encode y_train
+y_train = encoder.encode(y_train)
+# Create y_train with 40 repetitions of each digit in order
+y_test = np.repeat(np.arange(total_digits), np.round(digits_repetition * (1- trainRatio)).astype(int))
+# One hot encode y_test
+y_test = encoder.encode(y_test)
+
+# Normalization
+normalizer = Normalizer()
+X_train = normalizer.normalize(X_train)
+X_test = normalizer.normalize(X_test)
+
+W_init = np.zeros((X_train.shape[1], total_digits))
+b_init = np.zeros(total_digits)
+
+linear_regressor = LinearRegression()
+w_min, b_min = linear_regressor.train(xTrain=X_train, yTrain=y_train, w_init=W_init, b_init=b_init,
+                                      learning_rate=1e-2, iterations=1000)
+linear_regressor.predict(xTest=X_test, yTest=y_test, wMin=w_min, bMin=b_min)
+
 
 #X_train = np.arange(1, 11).reshape(-1, 1)
 #y_train = X_train ** 2
@@ -147,16 +178,3 @@ y_test[:40] = 1
 # Feature Engineering
 #X_train = np.c_[X_train, X_train ** 2, X_train ** 3]
 #X_test = np.c_[X_test, X_test ** 2, X_test ** 3]
-
-# Normalization
-normalizer = Normalizer()
-X_train = normalizer.normalize(X_train)
-X_test = normalizer.normalize(X_test)
-
-W_init = np.array(np.zeros(X_train.shape[1]))
-b_init = np.array(np.zeros(1))
-
-linear_regressor = LinearRegression()
-w_min, b_min = linear_regressor.train(xTrain=X_train, yTrain=y_train, w_init=W_init, b_init=b_init,
-                                      learning_rate=1e-2, iterations=1000)
-linear_regressor.predict(xTest=X_test, yTest=y_test, wMin=w_min, bMin=b_min)
