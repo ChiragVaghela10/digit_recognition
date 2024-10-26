@@ -9,12 +9,55 @@ algorithms. The implementation intentionally does not include sophisticated ML l
 The digit picture dataset contains data of 2000 grey scale pictures with 200 images of each 10 digits (0-9). The size of
 each picture is 16X15 and stored as a string of 240 decimal digits (ranging 0-6).
 
-Image Dataset is reshaped into 10X200x240 for easier indexing. Then it is divided into training data (80%) and testing
-data (20%).
-
 The following figure shows 10 pictures of each digit (0-9) using data from digit picture dataset file (mfeat-pix.txt):
 <br/><br/>
 ![Digits Pictures](blob/Digit_Pictures.png)
+
+### Data Preprocessing
+
+- Image Dataset is initially reshaped into 10X200x240 to collect all digits' samples into training and test data split.
+- Split ratio is 0.8 for all algorithms
+- Each row has 240 values in tables below. Table A depicting **original dataset** is (2000, 240) & _reshaped_ into Table B 
+with dimensions (10, 200, 240).
+- Each row represents one image of a digit of size 16 X 15 = 240.
+
+**TABLE A:**
+
+| index | image_data                  |
+|-------|-----------------------------|
+| 0     | <------ for digit 0 ------> |
+| 1     | <------     ""      ------> |
+| .     | <------     ""      ------> |
+| 199   | <------ for digit 0 ------> |
+| 200   | <------ for digit 1 ------> |
+| 201   | <------     ""      ------> |
+| ...   | <------     ""      ------> |
+| 1999  | <------ for digit 9 ------> |
+
+            |
+           \|/
+
+**TABLE B:**
+
+|   | index | image_data              |
+|---|-------|-------------------------|
+| 0 | 0     | <------ digit 0 ------> |
+| 0 | 1     | <------   ""   -------> |
+| . | .     | <------   ""    ------> |
+| 0 | 199   | <------ digit 0 ------> |
+| 1 | 0     | <------ digit 1 ------> |
+| 1 | 1     | <------   ""    ------> |
+| . | .     | <------   ""    ------> |
+| 1 | 199   | <------ digit 1 ------> |
+| . | .     | <------   ""    ------> |
+| 9 | 0     | <------ digit 9 ------> |
+| . | .     | <------   ""    ------> |
+| 9 | 199   | <------ digit 9 ------> |
+
+- Then TABLE B is split according to split ratio to obtain (10 X 160, 240) and (10 X 40 X 240) containing samples of
+all digits for training and testing.
+- Finally, reshaped back to **Train Data** (1600 X 240) and **Test Data** (400 X 240).
+
 
 ## Neural Networks
 

@@ -1,15 +1,14 @@
-import math
-
-import matplotlib.pyplot as plt
+import pickle
 import numpy as np
 import pandas as pd
-from typing import Tuple, List
+import matplotlib.pyplot as plt
+from typing import Tuple
 
-from contants import total_digits, digits_repetition, image_size, trainRatio
-from ml.models import Model
+from contants import total_digits, digits_repetition, image_size, trainRatio, colors
+from ml.helpers import OneHotEncoder, Normalizer
 
 
-class LinearRegression(Model):
+class LinearRegression(object):
     def __init__(self, classes=1):
         super().__init__()
         self.classes = classes
@@ -18,6 +17,60 @@ class LinearRegression(Model):
         self.b_init = None
         self.w_min = None
         self.b_min = None
+
+    @staticmethod
+    def plot_digit(img_data: np.array) -> None:
+        plt.imshow(img_data.reshape(16, 15))
+        plt.show()
+
+    @staticmethod
+    def plot_cost(cost: np.array):
+        classes = cost.shape[1]
+        for cls in range(classes):
+            plt.plot(cost[:, cls], "{}".format(colors[cls]), label="Class: {}".format(cls))
+        plt.legend(loc="upper right")
+        plt.xlabel("Iterations")
+        plt.ylabel("Cost")
+        plt.title("Cost vs Iterations")
+        plt.savefig("results/lr_cost.png")
+        plt.close()
+
+    @staticmethod
+    def plot_result(pred: np.array, target: np.array):
+        samples = len(target)
+        pred = np.round(pred).astype(int)
+        table_data = np.zeros((10, 3))
+        for cls in range(pred.shape[1]):
+            correct_pred = sum(target[:, cls] == pred[:, cls])
+            accuracy = correct_pred / samples
+            print("Class: {}, Correct Predictions: {} / 400, Accuracy: {}".format(cls, correct_pred, accuracy))
+            table_data[cls] = np.array([cls, correct_pred, accuracy])
+        cols = ["Class", "Correct Predictions", "Accuracy"]
+        rows = ['Class: %d' % x for x in (range(10))]
+
+        # hides background axes
+        plt.axis('off')
+
+        plt.table(cellText=table_data, rowLabels=rows, colLabels=cols, loc='center')
+        plt.savefig("results/lr_result.png")
+        plt.close()
+
+    @staticmethod
+    def save_weights(weights: np.ndarray, bias: np.array, cost: np.ndarray) -> None:
+        with open('weights/lr_weights.pkl', 'wb') as f:
+            pickle.dump(weights, f)
+            pickle.dump(bias, f)
+            pickle.dump(cost, f)
+            print('Saved model weights')
+
+    @staticmethod
+    def load_weights() -> Tuple[np.ndarray, np.array, np.ndarray]:
+        with open('weights/lr_weights.pkl', 'rb') as f:
+            weights = pickle.load(f)
+            bias = pickle.load(f)
+            cost = pickle.load(f)
+            print('Loaded model weights')
+            return weights, bias, cost
 
     def compute_gradient(self, xTrain: np.array, yTrain: np.array, w: np.array,
                          b: np.array) -> Tuple[np.array, np.array]:
@@ -38,7 +91,7 @@ class LinearRegression(Model):
         return dw, db
 
     def compute_cost(self, data: np.array, target: np.array, w: np.array, b: np.array,
-                     get_y_pred: bool = False) -> [np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+                     get_y_pred: bool = False) -> [np.ndarray, np.ndarray]:
         samples = data.shape[0]
         cost = np.zeros(self.classes)
         y_hat = np.zeros((samples, self.classes))
@@ -50,7 +103,7 @@ class LinearRegression(Model):
 
             cost[cls] = cost[cls] / (2 * samples)
         if get_y_pred:
-            return y_hat, cost
+            return y_hat
         else:
             return cost
 
@@ -73,65 +126,19 @@ class LinearRegression(Model):
 
         return w, b, self.cost_list
 
-    def plot_cost(self, cost: np.array):
-        plt.plot(cost[:, 0], "-r", label="Digit 0")
-        plt.plot(cost[:, 1], "-b", label="Digit 1")
-        plt.legend(loc="upper right")
-        plt.show()
-
-    def plot_result(self, pred: np.array, target: np.array):
-        samples = len(target)
-        pred = np.round(pred).astype(int)
-        correct_pred = sum(pred[:, 0] == target[:, 0])
-        print('Correct Prediction: {},  Total:{}, Accuracy: {}'.format(correct_pred,
-                                                                       samples, correct_pred / samples))
-        plt.plot(pred[:, 0], "-r", label='prediction')
-        plt.plot(target[:, 0], "-b", label='target')
-        plt.legend(loc="upper right")
-        plt.show()
-        pass
-
     def train(self, xTrain: np.array, yTrain: np.array, w_init: np.array, b_init: np.array,
               learning_rate: float, iterations: int) -> Tuple[np.array, np.array, np.array]:
         self.w_init = w_init
         self.b_init = b_init
 
-        self.w_min, self.b_min = self.gradient_descent(xTrain, yTrain, w_init, b_init, learning_rate, iterations)
+        self.w_min, self.b_min, self.cost_list = self.gradient_descent(xTrain, yTrain, w_init, b_init, learning_rate, iterations)
         print('Optimum weights and bias are: {}, {}'.format(self.w_min, self.b_min))
+
         return self.w_min, self.b_min, self.cost_list
 
     def predict(self, xTest: np.array, yTest: np.array, wMin: np.array, bMin: float) -> Tuple[np.array, np.array]:
         print('Predicting...')
         return self.compute_cost(data=xTest, target=yTest, w=wMin, b=bMin, get_y_pred=True)
-
-
-class Normalizer(object):
-    def __init__(self):
-        self.mu = None
-        self.sigma = None
-
-    def normalize(self, X) -> np.array:
-        if self.mu is None:
-            self.mu = np.mean(X, axis=0)
-        if self.sigma is None:
-            self.sigma = np.std(X, axis=0)
-        print("mu and sigma are: {}, {}".format(self.mu, self.sigma))
-        x_norm = (X - self.mu) / self.sigma
-        return x_norm
-
-
-class OneHotEncoder(object):
-    def __init__(self):
-        pass
-
-    def encode(self, X: np.array, categories: int = None) -> np.array:
-        if categories is None:
-            categories = np.unique(X).shape[0]
-        res = np.eye(categories)[np.array(X).reshape(-1)]
-        return res.reshape(list(X.shape) + [categories])
-
-    def decode(self, X):
-        pass
 
 
 with open('img_data.txt', 'r', encoding='ascii') as dataFile:
@@ -171,16 +178,17 @@ b_init = np.zeros(total_digits)
 linear_regressor = LinearRegression(total_digits)
 w_min, b_min, cost_data = linear_regressor.train(xTrain=X_train, yTrain=y_train,
                                                  w_init=W_init, b_init=b_init, learning_rate=1e-2, iterations=1000)
+linear_regressor.save_weights(weights=w_min, bias=b_min, cost=cost_data)
+
+w_min, b_min, cost_data = linear_regressor.load_weights()
 linear_regressor.plot_cost(cost=cost_data)
-y_pred, all_digits_costs = linear_regressor.predict(xTest=X_test, yTest=y_test, wMin=w_min, bMin=b_min)
+y_pred = linear_regressor.predict(xTest=X_test, yTest=y_test, wMin=w_min, bMin=b_min)
 linear_regressor.plot_result(pred=y_pred, target=y_test)
 
-
-# X_train = np.arange(1, 11).reshape(-1, 1)
-# y_train = X_train ** 2
-# X_test = np.arange(11, 16).reshape(-1, 1)
-# y_test = X_test ** 2
-
-# Feature Engineering
-# X_train = np.c_[X_train, X_train ** 2, X_train ** 3]
-# X_test = np.c_[X_test, X_test ** 2, X_test ** 3]
+digit = 7
+random_sample = normalizer.normalize(img_data[digit, 129, :].reshape(-1, 240))
+linear_regressor.plot_digit(random_sample)
+test_target = np.array([[0, 0, 0, 0, 0, 0, 0, 1, 0, 0],])
+predicted_digit = linear_regressor.predict(xTest=random_sample, yTest=test_target, wMin=w_min, bMin=b_min)
+predicted_digit = np.argmax(np.round(predicted_digit).astype(int))
+print("Predicted digit: {} and actual digit: {}".format(predicted_digit, digit))
