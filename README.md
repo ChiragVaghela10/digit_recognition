@@ -59,13 +59,27 @@ all digits for training and testing.
 - Finally, reshaped back to **Train Data** (1600 X 240) and **Test Data** (400 X 240).
 
 
-## Neural Networks
+## Linear Regression
 
 ### Algorithm
-...
+Linear Regression is preferred to predict real values. However, we can use it for classification task but with
+limitations in performance. Therefore, in this implementation separate linear function for each digit is used to improve 
+performance.
+
+This implementation uses 10 linear functions to predict each digit {0, 1, ..., 9}. e.g. First function would have its own 
+weights (240,) and bias (1,) to predict digit '0'. Second function would have its own to predict digit '1' and so on...
+
+Maximum of predicted values (10,) obtained by model is used to determine the predicted digit. e.g. when 
+prediction of the model is [0.0234, 0.0263, 0.0163, 8.462, 0.1643, 0.2351, 0.0432, 0.2785, 0.5488, 0.0462], the
+predicted digit would be '3'.
+
+The model can be considered as neural network of 1 layer having 10 nodes and 'linear' activation function.
 
 ### Results
-...
+
+<img src="results/lr_cost.png" alt="random_sample" width="360" height="360"/>
+<img src="results/lr_result.png" alt="random_sample" width="360" height="360"/>
+<img src="results/lr_random_sample.png" alt="random_sample" width="360" height="360"/>
 
 ## K-Nearest Neighbours
 

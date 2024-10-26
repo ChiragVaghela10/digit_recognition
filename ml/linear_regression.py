@@ -20,6 +20,7 @@ class LinearRegression(object):
 
     @staticmethod
     def plot_digit(img_data: np.array) -> None:
+        plt.title("Sample Digit")
         plt.imshow(img_data.reshape(16, 15))
         plt.show()
 
@@ -32,7 +33,7 @@ class LinearRegression(object):
         plt.xlabel("Iterations")
         plt.ylabel("Cost")
         plt.title("Cost vs Iterations")
-        plt.savefig("results/lr_cost.png")
+        plt.savefig("../results/lr_cost.png")
         plt.close()
 
     @staticmethod
@@ -40,19 +41,23 @@ class LinearRegression(object):
         samples = len(target)
         pred = np.round(pred).astype(int)
         table_data = np.zeros((10, 3))
+
         for cls in range(pred.shape[1]):
             correct_pred = sum(target[:, cls] == pred[:, cls])
             accuracy = correct_pred / samples
-            print("Class: {}, Correct Predictions: {} / 400, Accuracy: {}".format(cls, correct_pred, accuracy))
+
             table_data[cls] = np.array([cls, correct_pred, accuracy])
-        cols = ["Class", "Correct Predictions", "Accuracy"]
+            print("Class: {}, Correct Predictions: {} / 400, Accuracy: {}".format(cls, correct_pred, accuracy))
+
+        plt.title("Digit Prediction Accuracy")
+        cols = ["Class", "Correct Predictions (out of 400)", "Accuracy"]
         rows = ['Class: %d' % x for x in (range(10))]
 
         # hides background axes
         plt.axis('off')
 
         plt.table(cellText=table_data, rowLabels=rows, colLabels=cols, loc='center')
-        plt.savefig("results/lr_result.png")
+        plt.savefig("../results/lr_result.png")
         plt.close()
 
     @staticmethod
@@ -131,7 +136,8 @@ class LinearRegression(object):
         self.w_init = w_init
         self.b_init = b_init
 
-        self.w_min, self.b_min, self.cost_list = self.gradient_descent(xTrain, yTrain, w_init, b_init, learning_rate, iterations)
+        self.w_min, self.b_min, self.cost_list = self.gradient_descent(xTrain, yTrain, w_init,
+                                                                       b_init, learning_rate, iterations)
         print('Optimum weights and bias are: {}, {}'.format(self.w_min, self.b_min))
 
         return self.w_min, self.b_min, self.cost_list
@@ -176,19 +182,30 @@ W_init = np.zeros((X_train.shape[1], total_digits))
 b_init = np.zeros(total_digits)
 
 linear_regressor = LinearRegression(total_digits)
-w_min, b_min, cost_data = linear_regressor.train(xTrain=X_train, yTrain=y_train,
-                                                 w_init=W_init, b_init=b_init, learning_rate=1e-2, iterations=1000)
-linear_regressor.save_weights(weights=w_min, bias=b_min, cost=cost_data)
+# w_min, b_min, cost_data = linear_regressor.train(xTrain=X_train, yTrain=y_train,
+#                                                  w_init=W_init, b_init=b_init, learning_rate=1e-2, iterations=1000)
+# linear_regressor.save_weights(weights=w_min, bias=b_min, cost=cost_data)
 
 w_min, b_min, cost_data = linear_regressor.load_weights()
-linear_regressor.plot_cost(cost=cost_data)
+# linear_regressor.plot_cost(cost=cost_data)
 y_pred = linear_regressor.predict(xTest=X_test, yTest=y_test, wMin=w_min, bMin=b_min)
 linear_regressor.plot_result(pred=y_pred, target=y_test)
 
-digit = 7
-random_sample = normalizer.normalize(img_data[digit, 129, :].reshape(-1, 240))
+# Prediction of random sample
+random_digit = np.random.randint(0, 10, size=1)
+random_index = np.random.randint(0, 200, size=1)
+random_sample = img_data[random_digit, random_index, :].reshape(-1, image_size)
 linear_regressor.plot_digit(random_sample)
-test_target = np.array([[0, 0, 0, 0, 0, 0, 0, 1, 0, 0],])
+random_sample = normalizer.normalize(random_sample)
+test_target = np.array([np.zeros(10),])
+test_target[0, random_digit] = 1        # Providing target y
 predicted_digit = linear_regressor.predict(xTest=random_sample, yTest=test_target, wMin=w_min, bMin=b_min)
 predicted_digit = np.argmax(np.round(predicted_digit).astype(int))
-print("Predicted digit: {} and actual digit: {}".format(predicted_digit, digit))
+print("Predicted digit: {} and actual digit: {}".format(predicted_digit, random_digit))
+
+
+# ![Digits Pictures](results/lr_cost.png)
+#
+# ![Digits Pictures](results/lr_result.png)
+#
+# ![Digits Pictures](results/lr_random_sample.png)
