@@ -77,9 +77,9 @@ The model can be considered as neural network of 1 layer having 10 nodes and 'li
 
 ### Results
 
-<img src="results/lr_cost.png" alt="random_sample" width="360" height="360"/>
-<img src="results/lr_result.png" alt="random_sample" width="360" height="360"/>
-<img src="results/lr_random_sample.png" alt="random_sample" width="360" height="360"/>
+<img src="results/lr_cost.png" alt="random_sample" width="240" height="240"/>
+<img src="results/lr_result.png" alt="random_sample" width="240" height="240"/>
+<img src="results/lr_random_sample.png" alt="random_sample" width="240" height="240"/>
 
 ## K-Nearest Neighbours
 
