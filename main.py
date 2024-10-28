@@ -1,82 +1,49 @@
-import pandas as pd
-import matplotlib.pyplot as plt
+from pathlib import Path
 
-from kNN import algorithms
-from contants import *
-with open('data/mfeat-pix.txt', 'r', encoding='ascii') as dataFile:
-    mfeat_pix = pd.read_table(dataFile, sep='  ', header=None, engine='python').values
+import numpy as np
 
+from contants import total_digits
+from ml.linear_regression import LinearRegression
+from ml.plots import plot_cost, plot_result
+from ml.statistics import Normalizer, OneHotEncoder
+from preprocessing import ImageDataSet
 
-# Image Dataset is reshaped into 10X200x240 for easier indexing.
-new_shape = mfeat_pix.reshape(total_digits, digits_repetition, image_size)
+img_data = ImageDataSet(Path('data/mfeat-pix.txt'))
+img_data.load()
+X_train, X_test, y_train, y_test = img_data.preprocess()
 
+# Normalization
+normalizer = Normalizer()
+X_train = normalizer.normalize(X_train)
+X_test = normalizer.normalize(X_test)
 
-def plot(columns):
-    """
-    function to draw pictures from the data vectors
-    """
-    for i in range(columns):
-        for j in range(columns):
-            pic = mfeat_pix[digits_repetition * i + j][:]
-            picmat_reverse = -pic
-            picmat = picmat_reverse.reshape(16, 15)
-            plt.figure(1, figsize=(11, 6.5))
-            # TODO: Come up with dynamic formula
-            plt.subplot(10, 10, i * 10 + j + 1)
-            plt.axis('off')
-            plt.imshow(picmat, cmap='gray')
-    plt.show()
+# One Hot Encoding
+encoder = OneHotEncoder()
+y_train = encoder.encode(y_train)
+y_test = encoder.encode(y_test)
 
+# Performing Linear Regression
+linear_regressor = LinearRegression(total_digits)
+# Initial Weights and Bias
+W_init = np.zeros((X_train.shape[1], total_digits))
+b_init = np.zeros(total_digits)
+w_min, b_min, cost_data = linear_regressor.train(xTrain=X_train, yTrain=y_train,
+                                                 w_init=W_init, b_init=b_init, learning_rate=1e-2, iterations=100)
+# linear_regressor.save_weights(weights=w_min, bias=b_min, cost=cost_data)
 
-def accuracies(trainData, testData, k_values):
-    """
-    function get list of k values as parameter and return corresponding accuracy values list
+# w_min, b_min, cost_data = linear_regressor.load_weights()
+plot_cost(cost=cost_data)
+y_pred = linear_regressor.predict(xTest=X_test, yTest=y_test, wMin=w_min, bMin=b_min)
+plot_result(pred=y_pred, target=y_test)
 
-    trainData: training data, first 160 images of each digit
-    testData: testing data, remaining 40 images of each digit
-    k_list: list of values of K for which the accuracies of KNN is to found
-    return: accuracy_list corresponding to list of values of K neighbors, max_result value for its corresponding K
-    neighbors value
-    """
-    result_list = []
-    max_result = 0
-    associated_k = 0
-    for k in k_values:
-        accuracy = algorithms.kNN(testData, trainData, k)
-        result_list.append(accuracy)
-        if accuracy > max_result:
-            max_result = accuracy
-            associated_k = k
-    return result_list, max_result, associated_k
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    # training data: first 160 images of each digit
-    train_data = new_shape[:, :int(digits_repetition * trainRatio), :]
-    # testing data: remaining 40 images of each digit
-    test_data = new_shape[:, int(digits_repetition * trainRatio):, :]
-    # Shows 10 pictures of each digit
-    plot(10)
-
-    # (a) Single execution with K = 3
-    print('Running KNN model...')
-    print('Accuracy of the kNN model (for K = 4) is: ', algorithms.kNN(test_data, train_data, 3))
-
-    # TODO: Implement 10-fold cross validation
-    # (b) 10-fold Cross Validation
-    pass
-
-    # (c) Run kNN: k vs accuracy
-    k_list = [2, 3, 4, 6, 9, 11, 12, 13, 14, 15, 16, 17, 18, 20, 25, 30, 50, 70, 90, 100]
-    print('Running KNN Model for each value of K. So, sit back and relax...')
-    accuracy_list, max_accuracy, max_k = accuracies(train_data, test_data, k_list)
-    k_accuracy_list = zip(k_list, accuracy_list)
-    print('K vs accuracy values are:', list(k_accuracy_list))
-    print('Max accuracy is:', max_accuracy, 'when k =', max_k)
-
-    plt.plot(k_list, accuracy_list)
-    plt.title('Accuracy vs k')
-    plt.xlabel('k Neighbors')
-    plt.ylabel('Accuracy')
-    plt.show()
+# Prediction of random sample
+# random_digit = np.random.randint(0, 10, size=1)
+# random_index = np.random.randint(0, 200, size=1)
+# random_sample = img_data[random_digit, random_index, :].reshape(-1, image_size)
+# linear_regressor.plot_digit(random_sample)
+# random_sample = normalizer.normalize(random_sample)
+# test_target = np.array([np.zeros(10),])
+# test_target[0, random_digit] = 1        # Providing target y
+# predicted_digit = linear_regressor.predict(xTest=random_sample, yTest=test_target, wMin=w_min, bMin=b_min)
+# predicted_digit = np.argmax(np.round(predicted_digit).astype(int))
+# print("Predicted digit: {} and actual digit: {}".format(predicted_digit, random_digit))

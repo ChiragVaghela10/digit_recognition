@@ -1,64 +1,37 @@
 import pickle
+from abc import ABC
+
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from typing import Tuple
 
-from contants import total_digits, digits_repetition, image_size, trainRatio, colors
-from ml.helpers import OneHotEncoder, Normalizer
+from contants import colors
+
+
+class Regressor(ABC):
+    w_init = None
+    b_init = None
+    w_min = None
+    b_min = None
+
+    def __init__(self):
+        pass
+
+    def save_weights(self, weights: np.ndarray, bias: np.array, cost: np.ndarray):
+        pass
+
+    def load_weights(self) -> Tuple[np.ndarray, np.array]:
+        pass
 
 
 class LinearRegression(object):
-    def __init__(self, classes=1):
-        super().__init__()
-        self.classes = classes
+    def __init__(self, nodes=1):
+        self.nodes = nodes
         self.cost_list = None
         self.w_init = None
         self.b_init = None
         self.w_min = None
         self.b_min = None
-
-    @staticmethod
-    def plot_digit(img_data: np.array) -> None:
-        plt.title("Sample Digit")
-        plt.imshow(img_data.reshape(16, 15))
-        plt.show()
-
-    @staticmethod
-    def plot_cost(cost: np.array):
-        classes = cost.shape[1]
-        for cls in range(classes):
-            plt.plot(cost[:, cls], "{}".format(colors[cls]), label="Class: {}".format(cls))
-        plt.legend(loc="upper right")
-        plt.xlabel("Iterations")
-        plt.ylabel("Cost")
-        plt.title("Cost vs Iterations")
-        plt.savefig("../results/lr_cost.png")
-        plt.close()
-
-    @staticmethod
-    def plot_result(pred: np.array, target: np.array):
-        samples = len(target)
-        pred = np.round(pred).astype(int)
-        table_data = np.zeros((10, 3))
-
-        for cls in range(pred.shape[1]):
-            correct_pred = sum(target[:, cls] == pred[:, cls])
-            accuracy = correct_pred / samples
-
-            table_data[cls] = np.array([cls, correct_pred, accuracy])
-            print("Class: {}, Correct Predictions: {} / 400, Accuracy: {}".format(cls, correct_pred, accuracy))
-
-        plt.title("Digit Prediction Accuracy")
-        cols = ["Class", "Correct Predictions (out of 400)", "Accuracy"]
-        rows = ['Class: %d' % x for x in (range(10))]
-
-        # hides background axes
-        plt.axis('off')
-
-        plt.table(cellText=table_data, rowLabels=rows, colLabels=cols, loc='center')
-        plt.savefig("../results/lr_result.png")
-        plt.close()
 
     @staticmethod
     def save_weights(weights: np.ndarray, bias: np.array, cost: np.ndarray) -> None:
@@ -81,32 +54,32 @@ class LinearRegression(object):
                          b: np.array) -> Tuple[np.array, np.array]:
         samples = xTrain.shape[0]
         features = xTrain.shape[1]
-        dw = np.zeros((features, self.classes))
-        db = np.zeros(self.classes)
+        dw = np.zeros((features, self.nodes))
+        db = np.zeros(self.nodes)
 
-        for cls in range(self.classes):
+        for node in range(self.nodes):
             y_hat = np.zeros(samples).reshape(-1, 1)
             for sample in range(samples):
-                y_hat[sample] = np.dot(xTrain[sample], w[:, cls]) + b[cls]
-                dw[:, cls] += (y_hat[sample] - yTrain[sample, cls]) * xTrain[sample]
-                db[cls] += y_hat[sample] - yTrain[sample, cls]
+                y_hat[sample] = np.dot(xTrain[sample], w[:, node]) + b[node]
+                dw[:, node] += (y_hat[sample] - yTrain[sample, node]) * xTrain[sample]
+                db[node] += y_hat[sample] - yTrain[sample, node]
 
-            dw[:, cls] = dw[:, cls] / samples
-            db[cls] = db[cls] / samples
+            dw[:, node] = dw[:, node] / samples
+            db[node] = db[node] / samples
         return dw, db
 
     def compute_cost(self, data: np.array, target: np.array, w: np.array, b: np.array,
                      get_y_pred: bool = False) -> [np.ndarray, np.ndarray]:
         samples = data.shape[0]
-        cost = np.zeros(self.classes)
-        y_hat = np.zeros((samples, self.classes))
+        cost = np.zeros(self.nodes)
+        y_hat = np.zeros((samples, self.nodes))
 
-        for cls in range(self.classes):
+        for node in range(self.nodes):
             for sample in range(samples):
-                y_hat[sample, cls] = np.dot(data[sample], w[:, cls]) + b[cls]
-                cost[cls] += (y_hat[sample, cls] - target[sample, cls]) ** 2
+                y_hat[sample, node] = np.dot(data[sample], w[:, node]) + b[node]
+                cost[node] += (y_hat[sample, node] - target[sample, node]) ** 2
 
-            cost[cls] = cost[cls] / (2 * samples)
+            cost[node] = cost[node] / (2 * samples)
         if get_y_pred:
             return y_hat
         else:
@@ -114,7 +87,7 @@ class LinearRegression(object):
 
     def gradient_descent(self, xTrain: np.array, yTrain: np.array, w_init: np.array, b_init: np.array, alpha: float,
                          iters: int) -> Tuple[np.array, np.array, np.array]:
-        self.cost_list = np.zeros((iters, self.classes))
+        self.cost_list = np.zeros((iters, self.nodes))
         w = w_init
         b = b_init
 
@@ -145,67 +118,3 @@ class LinearRegression(object):
     def predict(self, xTest: np.array, yTest: np.array, wMin: np.array, bMin: float) -> Tuple[np.array, np.array]:
         print('Predicting...')
         return self.compute_cost(data=xTest, target=yTest, w=wMin, b=bMin, get_y_pred=True)
-
-
-with open('img_data.txt', 'r', encoding='ascii') as dataFile:
-    mfeat_pix = pd.read_table(dataFile, sep='  ', header=None, engine='python').values
-    img_data = mfeat_pix.reshape(total_digits, digits_repetition, image_size)
-
-# Get X_train with (10, 160, 240) shape
-X_train = img_data[:, :int(digits_repetition * trainRatio), :]
-# Convert X_train to (1600, 240) shape
-X_train = X_train.reshape(np.round(total_digits * digits_repetition * trainRatio).astype(int), image_size)
-# Get X_test with (10, 40 ,240) shape
-X_test = img_data[:, int(digits_repetition * trainRatio):, :]
-# Convert X_test to (400, 240) shape
-X_test = X_test.reshape(np.round(total_digits * digits_repetition * (1 - trainRatio)).astype(int), image_size)
-
-# y_train_new = y_train.reshape(int(total_digits * digits_repetition * trainRatio), total_digits) # also encodes
-
-encoder = OneHotEncoder()
-
-# Create y_train with 160 repetitions of each digit in order
-y_train = np.repeat(np.arange(total_digits), np.round(digits_repetition * trainRatio))
-# One hot encode y_train
-y_train = encoder.encode(y_train)
-# Create y_train with 40 repetitions of each digit in order
-y_test = np.repeat(np.arange(total_digits), np.round(digits_repetition * (1 - trainRatio)).astype(int))
-# One hot encode y_test
-y_test = encoder.encode(y_test)
-
-# Normalization
-normalizer = Normalizer()
-X_train = normalizer.normalize(X_train)
-X_test = normalizer.normalize(X_test)
-
-W_init = np.zeros((X_train.shape[1], total_digits))
-b_init = np.zeros(total_digits)
-
-linear_regressor = LinearRegression(total_digits)
-# w_min, b_min, cost_data = linear_regressor.train(xTrain=X_train, yTrain=y_train,
-#                                                  w_init=W_init, b_init=b_init, learning_rate=1e-2, iterations=1000)
-# linear_regressor.save_weights(weights=w_min, bias=b_min, cost=cost_data)
-
-w_min, b_min, cost_data = linear_regressor.load_weights()
-# linear_regressor.plot_cost(cost=cost_data)
-y_pred = linear_regressor.predict(xTest=X_test, yTest=y_test, wMin=w_min, bMin=b_min)
-linear_regressor.plot_result(pred=y_pred, target=y_test)
-
-# Prediction of random sample
-random_digit = np.random.randint(0, 10, size=1)
-random_index = np.random.randint(0, 200, size=1)
-random_sample = img_data[random_digit, random_index, :].reshape(-1, image_size)
-linear_regressor.plot_digit(random_sample)
-random_sample = normalizer.normalize(random_sample)
-test_target = np.array([np.zeros(10),])
-test_target[0, random_digit] = 1        # Providing target y
-predicted_digit = linear_regressor.predict(xTest=random_sample, yTest=test_target, wMin=w_min, bMin=b_min)
-predicted_digit = np.argmax(np.round(predicted_digit).astype(int))
-print("Predicted digit: {} and actual digit: {}".format(predicted_digit, random_digit))
-
-
-# ![Digits Pictures](results/lr_cost.png)
-#
-# ![Digits Pictures](results/lr_result.png)
-#
-# ![Digits Pictures](results/lr_random_sample.png)
