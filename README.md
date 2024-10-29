@@ -79,9 +79,9 @@ The model can be considered as neural network of 1 layer having 10 nodes and 'li
 
 Cost vs Iterations                         |               Accuracy               | Random Sample                                    |
 :-----------------------------------------:|:------------------------------------:|:-------------------------------------------------|
-![Cost vs Iterations](results/lr_cost_0.png) |  ![Accuracy](results/lr_result_0.png)  | ![Random Sample](results/lr_random_sample_0.png) 
+![Cost vs Iterations](results/lr_cost.png) |  ![Accuracy](results/lr_result.png)  | ![Random Sample](results/lr_random_sample.png) 
 
-![Prediciton Output](results/lr_prediction_0.png)
+![Prediciton Output](results/lr_prediction.png)
 
 
 ## K-Nearest Neighbours

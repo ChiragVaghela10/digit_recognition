@@ -1,9 +1,11 @@
+from abc import ABC
+
 import numpy as np
 from pathlib import Path
 
 from typing import Tuple
 
-from ml.models import ModelParameters
+from ml.models import RegressorModelParameters
 
 
 class GradientDescent(object):
@@ -23,13 +25,8 @@ class GradientDescent(object):
 class LinearRegression(object):
     def __init__(self, nodes=1):
         self.nodes = nodes
-        self.parameters = None
-        self.weights_filepath = Path(__file__).parent / Path('weights/lr_weights.hp5')
-        # self.cost_list = None
-        # self.w_init = None
-        # self.b_init = None
-        # self.w_min = None
-        # self.b_min = None
+        # self.parameters = None
+        # self.weights_filepath = None
 
     def compute_gradient(self, xTrain: np.array, yTrain: np.array, w: np.array,
                          b: np.array) -> Tuple[np.array, np.array]:
@@ -85,20 +82,27 @@ class LinearRegression(object):
 
         return w, b, self.cost_list
 
-    def train(self, xTrain: np.array, yTrain: np.array, parameters: ModelParameters,
-              learning_rate: float, iterations: int) -> Tuple[np.array, np.array, np.array]:
-        # self.w_init = w_init
-        # self.b_init = b_init
-        self.parameters = parameters
-        w_init, b_init = self.parameters.load_initial_weights()
+    def train(self, xTrain: np.array, yTrain: np.array, parameters: RegressorModelParameters,
+              learning_rate: float, iterations: int, weights_filepath: Path = None) -> RegressorModelParameters:
+        if weights_filepath:
+            w_init, b_init = parameters.load_initial_weights(filepath=weights_filepath,)
+        else:
+            w_init, b_init = parameters.load_initial_weights()
 
         w_min, b_min, cost_list = self.gradient_descent(xTrain, yTrain, w_init, b_init, learning_rate, iterations)
         print('Optimum weights and bias are: {}, {}'.format(w_min, b_min))
 
-        self.parameters.save_weights(filepath=self.weights_filepath, weights=w_min, bias=b_min, cost_history=cost_list)
-        return w_min, b_min, cost_list
+        if weights_filepath:
+            parameters.save_weights(weights=w_min, bias=b_min, cost_history=cost_list, filepath=weights_filepath)
+        else:
+            parameters.save_weights(weights=w_min, bias=b_min, cost_history=cost_list)
+        return parameters
 
-    def predict(self, xTest: np.ndarray, yTest: np.ndarray) -> Tuple[np.array, np.array]:
+    def predict(self, xTest: np.ndarray, yTest: np.ndarray,
+                parameters: RegressorModelParameters, weights_filepath: Path = None) -> Tuple[np.array, np.array]:
         print('Predicting...')
-        w_min, b_min, cost_history = self.parameters.load_optimum_weights(self.weights_filepath)
+        if weights_filepath:
+            w_min, b_min = parameters.load_optimum_weights(weights_filepath)
+        else:
+            w_min, b_min = parameters.load_optimum_weights()
         return self.compute_cost(data=xTest, target=yTest, w=w_min, b=b_min, get_y_pred=True)
