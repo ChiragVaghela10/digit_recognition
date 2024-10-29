@@ -36,7 +36,7 @@ linear_regressor = LinearRegression(total_digits)
 # model_paras = linear_regressor.train(xTrain=X_train, yTrain=y_train, parameters=model_paras, learning_rate=1e-2,
 #                                      iterations=100)
 
-# Load Weights from file instead of training every time
+# Load saved weights to avoid training
 model_paras = RegressorModelParameters()
 model_paras.load_optimum_weights(filepath=WEIGHTS_DIR)
 

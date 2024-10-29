@@ -25,8 +25,6 @@ class GradientDescent(object):
 class LinearRegression(object):
     def __init__(self, nodes=1):
         self.nodes = nodes
-        # self.parameters = None
-        # self.weights_filepath = None
 
     def compute_gradient(self, xTrain: np.array, yTrain: np.array, w: np.array,
                          b: np.array) -> Tuple[np.array, np.array]:
@@ -46,16 +44,16 @@ class LinearRegression(object):
             db[node] = db[node] / samples
         return dw, db
 
-    def compute_cost(self, data: np.array, target: np.array, w: np.array, b: np.array,
+    def compute_cost(self, x: np.array, y: np.array, w: np.array, b: np.array,
                      get_y_pred: bool = False) -> [np.ndarray, np.ndarray]:
-        samples = data.shape[0]
+        samples = x.shape[0]
         cost = np.zeros(self.nodes)
         y_hat = np.zeros((samples, self.nodes))
 
         for node in range(self.nodes):
             for sample in range(samples):
-                y_hat[sample, node] = np.dot(data[sample], w[:, node]) + b[node]
-                cost[node] += (y_hat[sample, node] - target[sample, node]) ** 2
+                y_hat[sample, node] = np.dot(x[sample], w[:, node]) + b[node]
+                cost[node] += (y_hat[sample, node] - y[sample, node]) ** 2
 
             cost[node] = cost[node] / (2 * samples)
         if get_y_pred:
@@ -65,7 +63,7 @@ class LinearRegression(object):
 
     def gradient_descent(self, xTrain: np.array, yTrain: np.array, w_init: np.array, b_init: np.array, alpha: float,
                          iters: int) -> Tuple[np.array, np.array, np.array]:
-        self.cost_list = np.zeros((iters, self.nodes))
+        cost_list = np.zeros((iters, self.nodes))
         w = w_init
         b = b_init
 
@@ -73,36 +71,26 @@ class LinearRegression(object):
             print('Starting iteration {} ...'.format(i))
             cost = self.compute_cost(xTrain, yTrain, w, b)
             print('Cost after iteration {}: {}'.format(i, cost))
-            self.cost_list[i] = cost
+            cost_list[i] = cost
             dw, db = self.compute_gradient(xTrain, yTrain, w, b)
             w_tmp = w - alpha * dw
             b_tmp = b - alpha * db
             w = w_tmp
             b = b_tmp
 
-        return w, b, self.cost_list
+        return w, b, cost_list
 
     def train(self, xTrain: np.array, yTrain: np.array, parameters: RegressorModelParameters,
               learning_rate: float, iterations: int, weights_filepath: Path = None) -> RegressorModelParameters:
-        if weights_filepath:
-            w_init, b_init = parameters.load_initial_weights(filepath=weights_filepath,)
-        else:
-            w_init, b_init = parameters.load_initial_weights()
+        w_init, b_init = parameters.load_initial_weights(filepath=weights_filepath)
 
         w_min, b_min, cost_list = self.gradient_descent(xTrain, yTrain, w_init, b_init, learning_rate, iterations)
         print('Optimum weights and bias are: {}, {}'.format(w_min, b_min))
-
-        if weights_filepath:
-            parameters.save_weights(weights=w_min, bias=b_min, cost_history=cost_list, filepath=weights_filepath)
-        else:
-            parameters.save_weights(weights=w_min, bias=b_min, cost_history=cost_list)
+        parameters.save_weights(weights=w_min, bias=b_min, cost_history=cost_list, filepath=weights_filepath)
         return parameters
 
     def predict(self, xTest: np.ndarray, yTest: np.ndarray,
                 parameters: RegressorModelParameters, weights_filepath: Path = None) -> Tuple[np.array, np.array]:
         print('Predicting...')
-        if weights_filepath:
-            w_min, b_min = parameters.load_optimum_weights(weights_filepath)
-        else:
-            w_min, b_min = parameters.load_optimum_weights()
+        w_min, b_min = parameters.load_optimum_weights(weights_filepath)
         return self.compute_cost(data=xTest, target=yTest, w=w_min, b=b_min, get_y_pred=True)
