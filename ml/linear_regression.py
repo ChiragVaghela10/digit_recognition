@@ -1,54 +1,35 @@
-import pickle
-from abc import ABC
-
 import numpy as np
-import matplotlib.pyplot as plt
+from pathlib import Path
+
 from typing import Tuple
 
-from contants import colors
+from ml.models import ModelParameters
 
 
-class Regressor(ABC):
-    w_init = None
-    b_init = None
-    w_min = None
-    b_min = None
-
+class GradientDescent(object):
     def __init__(self):
         pass
 
-    def save_weights(self, weights: np.ndarray, bias: np.array, cost: np.ndarray):
+    def compute_cost(self):
         pass
 
-    def load_weights(self) -> Tuple[np.ndarray, np.array]:
+    def compute_gradient(self):
+        pass
+
+    def compute_gradient_descent(self):
         pass
 
 
 class LinearRegression(object):
     def __init__(self, nodes=1):
         self.nodes = nodes
-        self.cost_list = None
-        self.w_init = None
-        self.b_init = None
-        self.w_min = None
-        self.b_min = None
-
-    @staticmethod
-    def save_weights(weights: np.ndarray, bias: np.array, cost: np.ndarray) -> None:
-        with open('weights/lr_weights.pkl', 'wb') as f:
-            pickle.dump(weights, f)
-            pickle.dump(bias, f)
-            pickle.dump(cost, f)
-            print('Saved model weights')
-
-    @staticmethod
-    def load_weights() -> Tuple[np.ndarray, np.array, np.ndarray]:
-        with open('weights/lr_weights.pkl', 'rb') as f:
-            weights = pickle.load(f)
-            bias = pickle.load(f)
-            cost = pickle.load(f)
-            print('Loaded model weights')
-            return weights, bias, cost
+        self.parameters = None
+        self.weights_filepath = Path(__file__).parent / Path('weights/lr_weights.hp5')
+        # self.cost_list = None
+        # self.w_init = None
+        # self.b_init = None
+        # self.w_min = None
+        # self.b_min = None
 
     def compute_gradient(self, xTrain: np.array, yTrain: np.array, w: np.array,
                          b: np.array) -> Tuple[np.array, np.array]:
@@ -104,17 +85,20 @@ class LinearRegression(object):
 
         return w, b, self.cost_list
 
-    def train(self, xTrain: np.array, yTrain: np.array, w_init: np.array, b_init: np.array,
+    def train(self, xTrain: np.array, yTrain: np.array, parameters: ModelParameters,
               learning_rate: float, iterations: int) -> Tuple[np.array, np.array, np.array]:
-        self.w_init = w_init
-        self.b_init = b_init
+        # self.w_init = w_init
+        # self.b_init = b_init
+        self.parameters = parameters
+        w_init, b_init = self.parameters.load_initial_weights()
 
-        self.w_min, self.b_min, self.cost_list = self.gradient_descent(xTrain, yTrain, w_init,
-                                                                       b_init, learning_rate, iterations)
-        print('Optimum weights and bias are: {}, {}'.format(self.w_min, self.b_min))
+        w_min, b_min, cost_list = self.gradient_descent(xTrain, yTrain, w_init, b_init, learning_rate, iterations)
+        print('Optimum weights and bias are: {}, {}'.format(w_min, b_min))
 
-        return self.w_min, self.b_min, self.cost_list
+        self.parameters.save_weights(filepath=self.weights_filepath, weights=w_min, bias=b_min, cost_history=cost_list)
+        return w_min, b_min, cost_list
 
-    def predict(self, xTest: np.array, yTest: np.array, wMin: np.array, bMin: float) -> Tuple[np.array, np.array]:
+    def predict(self, xTest: np.ndarray, yTest: np.ndarray) -> Tuple[np.array, np.array]:
         print('Predicting...')
-        return self.compute_cost(data=xTest, target=yTest, w=wMin, b=bMin, get_y_pred=True)
+        w_min, b_min, cost_history = self.parameters.load_optimum_weights(self.weights_filepath)
+        return self.compute_cost(data=xTest, target=yTest, w=w_min, b=b_min, get_y_pred=True)

@@ -7,7 +7,7 @@ algorithms. The implementation intentionally does not include sophisticated ML l
 ## Project Scope
 
 The digit picture dataset contains data of 2000 grey scale pictures with 200 images of each 10 digits (0-9). The size of
-each picture is 16X15 and stored as a string of 240 decimal digits (ranging 0-6).
+each picture is 16X15 and stored as a array of 240 integers (ranging 0-6).
 
 The following figure shows 10 pictures of each digit (0-9) using data from digit picture dataset file (mfeat-pix.txt):
 <br/><br/>

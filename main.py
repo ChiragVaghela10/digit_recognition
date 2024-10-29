@@ -4,11 +4,14 @@ import numpy as np
 
 from contants import total_digits
 from ml.linear_regression import LinearRegression
+from ml.models import ModelParameters
 from ml.plots import plot_cost, plot_result
 from ml.statistics import Normalizer, OneHotEncoder
 from preprocessing import ImageDataSet
 
-img_data = ImageDataSet(Path('data/mfeat-pix.txt'))
+ROOT_DIR = Path(__file__).parent
+
+img_data = ImageDataSet(ROOT_DIR / Path('data/mfeat-pix.txt'))
 img_data.load()
 X_train, X_test, y_train, y_test = img_data.preprocess()
 
@@ -22,19 +25,21 @@ encoder = OneHotEncoder()
 y_train = encoder.encode(y_train)
 y_test = encoder.encode(y_test)
 
-# Performing Linear Regression
-linear_regressor = LinearRegression(total_digits)
 # Initial Weights and Bias
 W_init = np.zeros((X_train.shape[1], total_digits))
 b_init = np.zeros(total_digits)
-w_min, b_min, cost_data = linear_regressor.train(xTrain=X_train, yTrain=y_train,
-                                                 w_init=W_init, b_init=b_init, learning_rate=1e-2, iterations=100)
-# linear_regressor.save_weights(weights=w_min, bias=b_min, cost=cost_data)
+model_paras = ModelParameters(w_init=W_init, b_init=b_init)
 
-# w_min, b_min, cost_data = linear_regressor.load_weights()
-plot_cost(cost=cost_data)
-y_pred = linear_regressor.predict(xTest=X_test, yTest=y_test, wMin=w_min, bMin=b_min)
-plot_result(pred=y_pred, target=y_test)
+# Performing Linear Regression
+linear_regressor = LinearRegression(total_digits)
+w_min, b_min, cost_data = linear_regressor.train(xTrain=X_train, yTrain=y_train,
+                                                 parameters=model_paras, learning_rate=1e-2, iterations=10)
+
+# w_min, b_min, cost_data = model_paras.load_optimum_weights(filepath=ROOT_DIR / Path('ml/weights/lr_weights.hp5'))
+
+plot_cost(filepath=ROOT_DIR / Path('results/lr_cost.png'), cost=cost_data)
+y_pred = linear_regressor.predict(xTest=X_test, yTest=y_test)
+plot_result(filepath=ROOT_DIR / Path('results/lr_result.png'), pred=y_pred, target=y_test)
 
 # Prediction of random sample
 # random_digit = np.random.randint(0, 10, size=1)

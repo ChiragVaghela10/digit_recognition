@@ -12,7 +12,7 @@ def plot_digit(img_data: np.array) -> None:
     plt.show()
 
 
-def plot_cost(cost: np.array):
+def plot_cost(filepath: Path, cost: np.array):
     classes = cost.shape[1]
     for node in range(classes):
         plt.plot(cost[:, node], "{}".format(colors[node]), label="Class: {}".format(node))
@@ -20,11 +20,11 @@ def plot_cost(cost: np.array):
     plt.xlabel("Iterations")
     plt.ylabel("Cost")
     plt.title("Cost vs Iterations")
-    plt.savefig(Path(__file__).parents[1] / "results/lr_cost.png")
+    plt.savefig(filepath)
     plt.close()
 
 
-def plot_result(pred: np.array, target: np.array):
+def plot_result(filepath: Path, pred: np.array, target: np.array):
     samples = len(target)
     pred = np.round(pred).astype(int)
     table_data = np.zeros((10, 3))
@@ -44,5 +44,5 @@ def plot_result(pred: np.array, target: np.array):
     plt.axis('off')
 
     plt.table(cellText=table_data, rowLabels=rows, colLabels=cols, loc='center')
-    plt.savefig(Path(__file__).parents[1] / "results/lr_result.png")
+    plt.savefig(filepath)
     plt.close()
