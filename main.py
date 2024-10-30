@@ -32,13 +32,13 @@ b_init = np.zeros(total_digits)
 
 # Performing Linear Regression
 linear_regressor = LinearRegression(total_digits)
-# model_paras = RegressorModelParameters(w_init=W_init, b_init=b_init, filepath=WEIGHTS_DIR)
-# model_paras = linear_regressor.train(xTrain=X_train, yTrain=y_train, parameters=model_paras, learning_rate=1e-2,
-#                                      iterations=100)
+model_paras = RegressorModelParameters(w_init=W_init, b_init=b_init, filepath=WEIGHTS_DIR)
+model_paras = linear_regressor.train(xTrain=X_train, yTrain=y_train, parameters=model_paras, learning_rate=1e-2,
+                                     iterations=10)
 
 # Load saved weights to avoid training
-model_paras = RegressorModelParameters()
-model_paras.load_optimum_weights(filepath=WEIGHTS_DIR)
+# model_paras = RegressorModelParameters()
+# model_paras.load_optimum_weights(filepath=WEIGHTS_DIR)
 
 plot_cost(filepath=ROOT_DIR / Path('results/lr_cost.png'), cost=model_paras.load_plot_history())
 y_pred = linear_regressor.predict(xTest=X_test, yTest=y_test, parameters=model_paras)
