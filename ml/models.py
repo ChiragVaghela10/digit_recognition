@@ -54,14 +54,17 @@ class RegressorModelParameters(object):
         if filepath:
             self.weights_filepath = filepath
 
-        if self.weights_filepath.exists():
-            with h5py.File(str(self.weights_filepath), 'r') as model_file:
-                weights = model_file['init_weights'][()]
-                bias = model_file['init_bias'][()]
+        if self.w_init is None and self.b_init is None:
+            if self.weights_filepath.exists():
+                with h5py.File(str(self.weights_filepath), 'r') as model_file:
+                    self.w_init = model_file['init_weights'][()]
+                    self.b_init = model_file['init_bias'][()]
 
-                return weights, bias
+                    return self.w_init, self.b_init
+            else:
+                raise FileNotFoundError
         else:
-            raise FileNotFoundError
+            return self.w_init, self.b_init
 
     def load_optimum_weights(self, filepath: Path = None) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -72,23 +75,29 @@ class RegressorModelParameters(object):
         if filepath:
             self.weights_filepath = filepath
 
-        if self.weights_filepath.exists():
-            with h5py.File(str(self.weights_filepath), 'r') as model_file:
-                self.w_min = model_file['min_weights'][()]
-                self.b_min = model_file['min_bias'][()]
+        if self.w_min is None and self.b_min is None:
+            if self.weights_filepath.exists():
+                with h5py.File(str(self.weights_filepath), 'r') as model_file:
+                    self.w_min = model_file['min_weights'][()]
+                    self.b_min = model_file['min_bias'][()]
 
-                return self.w_min, self.b_min
+                    return self.w_min, self.b_min
+            else:
+                raise FileNotFoundError
         else:
-            raise FileNotFoundError
+            return self.w_min, self.b_min
 
     def load_plot_history(self, filepath: Path = None) -> Tuple[np.ndarray]:
         if filepath:
             self.weights_filepath = filepath
 
-        if self.weights_filepath.exists():
-            with h5py.File(str(self.weights_filepath), 'r') as model_file:
-                self.cost_history = model_file['cost_history'][()]
+        if self.cost_history is None:
+            if self.weights_filepath.exists():
+                with h5py.File(str(self.weights_filepath), 'r') as model_file:
+                    self.cost_history = model_file['cost_history'][()]
 
-            return self.cost_history
+                return self.cost_history
+            else:
+                raise FileNotFoundError
         else:
-            raise FileNotFoundError
+            return self.cost_history

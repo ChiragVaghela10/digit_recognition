@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 
 from contants import total_digits
-from ml.linear_regression import LinearRegression
+from ml.linear_regression import LinearRegressor
 from ml.models import RegressorModelParameters
 from ml.plots import plot_cost, plot_result
 from ml.statistics import Normalizer, OneHotEncoder
@@ -27,12 +27,13 @@ y_train = encoder.encode(y_train)
 y_test = encoder.encode(y_test)
 
 # Initial Weights and Bias
-W_init = np.zeros((X_train.shape[1], total_digits))
+W_init = np.zeros((total_digits, X_train.shape[1]))
 b_init = np.zeros(total_digits)
 
 # Performing Linear Regression
-linear_regressor = LinearRegression(total_digits)
+linear_regressor = LinearRegressor(total_digits)
 model_paras = RegressorModelParameters(w_init=W_init, b_init=b_init, filepath=WEIGHTS_DIR)
+# gradient_descent = GradientDescent()
 model_paras = linear_regressor.train(xTrain=X_train, yTrain=y_train, parameters=model_paras, learning_rate=1e-2,
                                      iterations=10)
 
@@ -40,7 +41,10 @@ model_paras = linear_regressor.train(xTrain=X_train, yTrain=y_train, parameters=
 # model_paras = RegressorModelParameters()
 # model_paras.load_optimum_weights(filepath=WEIGHTS_DIR)
 
-plot_cost(filepath=ROOT_DIR / Path('results/lr_cost.png'), cost=model_paras.load_plot_history())
+# Filepath argument needed when loading parameters without training
+cost_list = model_paras.load_plot_history()
+
+plot_cost(filepath=ROOT_DIR / Path('results/lr_cost.png'), cost=cost_list)
 y_pred = linear_regressor.predict(xTest=X_test, yTest=y_test, parameters=model_paras)
 plot_result(filepath=ROOT_DIR / Path('results/lr_result.png'), pred=y_pred, target=y_test)
 

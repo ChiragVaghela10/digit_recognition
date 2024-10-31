@@ -9,8 +9,14 @@ from ml.models import RegressorModelParameters
 
 
 class GradientDescent(object):
-    def __init__(self):
-        pass
+    def __init__(self, x: np.ndarray = None, y: np.ndarray = None, w: np.ndarray = None, b: np.ndarray = None,
+                 alpha: float = None, iters: int = None):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.b = b
+        self.alpha = alpha
+        self.iters = iters
 
     def compute_cost(self):
         pass
@@ -22,42 +28,27 @@ class GradientDescent(object):
         pass
 
 
-class LinearRegression(object):
+class LinearRegressor(object):
     def __init__(self, nodes=1):
         self.nodes = nodes
 
     def compute_f_x(self, x: np.ndarray, w: np.ndarray, b: np.array) -> np.ndarray:
-        pass
+        return np.dot(x, w.T) + b
 
-    def compute_gradient(self, x: np.ndarray, y: np.ndarray, w: np.ndarray, b: np.array) -> Tuple[np.ndarray, np.ndarray]:
-        samples = x.shape[0]
-        features = x.shape[1]
-        dw = np.zeros((features, self.nodes))
-        db = np.zeros(self.nodes)
+    def compute_gradient(self, x: np.ndarray, y: np.ndarray, y_hat: np.array) -> Tuple[np.ndarray, np.ndarray]:
+        samples = y.shape[0]
 
-        for node in range(self.nodes):
-            y_hat = np.zeros(samples).reshape(-1, 1)
-            for sample in range(samples):
-                y_hat[sample] = np.dot(x[sample], w[:, node]) + b[node]
-                dw[:, node] += (y_hat[sample] - y[sample, node]) * x[sample]
-                db[node] += y_hat[sample] - y[sample, node]
+        dw = np.dot((y_hat - y).T, x) / samples
+        db = (y_hat - y).sum(axis=0) / samples
 
-            dw[:, node] = dw[:, node] / samples
-            db[node] = db[node] / samples
         return dw, db
 
-    def compute_cost(self, x: np.ndarray, y: np.ndarray, w: np.ndarray, b: np.array,
-                     get_y_pred: bool = False) -> [np.ndarray, np.ndarray]:
-        samples = x.shape[0]
-        cost = np.zeros(self.nodes)
-        y_hat = np.zeros((samples, self.nodes))
+    def compute_cost(self, y: np.ndarray, y_hat: np.array, get_y_pred: bool = False) -> [np.ndarray, np.ndarray]:
+        samples = y.shape[0]
 
-        for node in range(self.nodes):
-            for sample in range(samples):
-                y_hat[sample, node] = np.dot(x[sample], w[:, node]) + b[node]
-                cost[node] += (y_hat[sample, node] - y[sample, node]) ** 2
+        cost = (y_hat - y) ** 2
+        cost = np.sum(cost, axis=0) / (2 * samples)
 
-            cost[node] = cost[node] / (2 * samples)
         if get_y_pred:
             return y_hat
         else:
@@ -69,10 +60,13 @@ class LinearRegression(object):
 
         for i in range(iters):
             print('Starting iteration {} ...'.format(i))
-            cost = self.compute_cost(x, y, w, b)
+
+            y_pred = self.compute_f_x(x, w, b)
+            cost = self.compute_cost(y=y, y_hat=y_pred)
+
             print('Cost after iteration {}: {}'.format(i, cost))
             cost_list[i] = cost
-            dw, db = self.compute_gradient(x, y, w, b)
+            dw, db = self.compute_gradient(x=x, y=y, y_hat=y_pred)
             w_tmp = w - alpha * dw
             b_tmp = b - alpha * db
             w = w_tmp
@@ -94,4 +88,5 @@ class LinearRegression(object):
                 parameters: RegressorModelParameters, weights_filepath: Path = None) -> Tuple[np.array, np.array]:
         print('Predicting...')
         w_min, b_min = parameters.load_optimum_weights(weights_filepath)
-        return self.compute_cost(x=xTest, y=yTest, w=w_min, b=b_min, get_y_pred=True)
+        y_pred = self.compute_f_x(x=xTest, w=w_min, b=b_min)
+        return self.compute_cost(y=yTest,y_hat=y_pred, get_y_pred=True)
