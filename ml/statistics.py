@@ -11,7 +11,6 @@ class Normalizer(object):
             self.mu = np.mean(X, axis=0)
         if self.sigma is None:
             self.sigma = np.std(X, axis=0)
-        print("mu and sigma are: {}, {}".format(self.mu, self.sigma))
         x_norm = (X - self.mu) / self.sigma
         return x_norm
 

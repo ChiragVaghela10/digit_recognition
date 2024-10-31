@@ -26,7 +26,6 @@ def plot_cost(filepath: Path, cost: np.array):
 
 def plot_result(filepath: Path, pred: np.array, target: np.array):
     samples = len(target)
-    pred = np.round(pred).astype(int)
     table_data = np.zeros((10, 3))
 
     for node in range(pred.shape[1]):
