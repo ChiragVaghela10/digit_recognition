@@ -3,7 +3,9 @@ from pathlib import Path
 import numpy as np
 
 from contants import total_digits, image_size
-from ml.linear_regression import LinearRegressor, GradientDescent, LinearActivationFunction
+from ml.linear_regression import Regressor
+from ml.optimizers import GradientDescent
+from ml.activation_functions import LinearActivationFunction, LogisticActivationFunction
 from ml.models import RegressorModelParameters
 from ml.plots import plot_cost, plot_result, plot_digit
 from ml.statistics import Normalizer, OneHotEncoder
@@ -31,15 +33,17 @@ W_init = np.zeros((total_digits, X_train.shape[1]))
 b_init = np.zeros(total_digits)
 
 # Performing Linear Regression
-linear_regressor = LinearRegressor()
+regressor = Regressor()
 gradient_descent = GradientDescent()
-activation_function = LinearActivationFunction()
+# activation_function = LinearActivationFunction()
+activation_function = LogisticActivationFunction()
 initial_model_paras = RegressorModelParameters(
     w_init=W_init,
     b_init=b_init,
     filepath=WEIGHTS_DIR
 )
-trained_model_paras = linear_regressor.train(
+
+trained_model_paras = regressor.train(
     xTrain=X_train,
     yTrain=y_train,
     nodes=total_digits,
@@ -55,8 +59,7 @@ trained_model_paras = linear_regressor.train(
 # trained_model_paras.load_optimum_weights(filepath=WEIGHTS_DIR)
 
 plot_cost(filepath=ROOT_DIR / Path('results/lr_cost.png'), cost=trained_model_paras.load_plot_history())
-y_pred = linear_regressor.predict(xTest=X_test, parameters=trained_model_paras,
-                                  activation=activation_function)
+y_pred = regressor.predict(xTest=X_test, parameters=trained_model_paras, activation=activation_function)
 plot_result(filepath=ROOT_DIR / Path('results/lr_result.png'), pred=y_pred, target=y_test)
 
 # Prediction of random sample
@@ -66,6 +69,6 @@ plot_result(filepath=ROOT_DIR / Path('results/lr_result.png'), pred=y_pred, targ
 # plot_digit(random_sample)
 # test_target = np.array([np.zeros(10),])
 # test_target[0, random_digit] = 1        # Providing target y
-# y_pred = linear_regressor.predict(xTest=random_sample, parameters=trained_model_paras, activation=activation_function)
+# y_pred = regressor.predict(xTest=random_sample, parameters=trained_model_paras, activation=activation_function)
 # predicted_digit = np.argmax(np.round(y_pred).astype(int))
 # print("Predicted digit: {} and actual digit: {}".format(predicted_digit, random_digit))
