@@ -79,7 +79,7 @@ The model can be considered as neural network of 1 layer having 10 nodes and 'li
 
 Cost vs Iterations                         |               Accuracy               | Random Sample                                    |
 :-----------------------------------------:|:------------------------------------:|:-------------------------------------------------|
-![Cost vs Iterations](results/lr_cost.png) |  ![Accuracy](results/lr_result.png)  | ![Random Sample](results/lr_random_sample.png) 
+![Cost vs Iterations](results/lr_cost.png) |  ![Accuracy](results/lr_result.png)  | ![Random Sample](ml/experiments/plots/lr_learning_plot.png) 
 
 ![Prediciton Output](results/lr_prediction.png)
 
