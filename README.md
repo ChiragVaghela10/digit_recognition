@@ -42,7 +42,7 @@ predicted digit would be '3'.
 The model can be considered as neural network of 1 layer having 10 nodes and 'linear' activation function.
 
 ### Results
-In progress...
+implemented. updating README In progress...
 
 
 ![Prediciton Output](results/lr_prediction.png)
@@ -50,7 +50,7 @@ In progress...
 ## Logistic Regression
 
 ### Algorithm
-In progress...
+implemented. updating README In progress...
 
 ### Results
 Cost vs Iterations                         |               Accuracy               | Random Sample                                    |
