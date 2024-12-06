@@ -25,6 +25,15 @@ class LinearActivationFunction(ActivationFunction):
 
     @staticmethod
     def compute_f_x(X: np.ndarray, w: np.ndarray, b: np.ndarray) -> np.ndarray:
+        """
+        Computers f_sub_w_comma_b(x) = w.T * X + b
+
+        This function is particularly important because it computes the value of hypothesis function f(x).
+        """
+        # NOTE: The implementation explained in Andrew Ng's course defines X as (n X m) while I used X as (m X n).
+        # This different has led to the interchange of variables in the np.dot() function call which is performing
+        # matrix multiplication of X (m X n) and w (n X l). where, l is number of nodes. Therefore, result (y_hat)
+        # is (m X l).
         return np.dot(X, w.T) + b
 
     @staticmethod
@@ -37,7 +46,9 @@ class LinearActivationFunction(ActivationFunction):
         return cost
 
     def apply_threshold(self, y_hat: np.ndarray) -> np.ndarray:
-        return (y_hat == y_hat.max(axis=1, keepdims=1)).astype(int)
+        y_hat_binary = np.zeros_like(y_hat)
+        y_hat_binary[np.arange(len(y_hat)), y_hat.argmax(1)] = 1
+        return y_hat_binary
 
 
 class LogisticActivationFunction(ActivationFunction):
@@ -64,9 +75,6 @@ class LogisticActivationFunction(ActivationFunction):
         return cost
 
     def apply_threshold(self, y_hat: np.ndarray, threshold: float = 0.5) -> np.ndarray:
-        if threshold:
-            self.threshold = threshold
-
         y_hat_binary = np.zeros_like(y_hat)
         y_hat_binary[np.arange(len(y_hat)), y_hat.argmax(1)] = 1
         return y_hat_binary

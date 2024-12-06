@@ -19,3 +19,11 @@ class ExpLearningOfPredictedValues:
         plt.ylabel("Prediction (value representing probability of digit being '0')")
         plt.savefig(f'ml/experiments/plots/learning_plot.png')
         plt.close()
+
+
+class ExpChangeOfWeights:
+    def __init__(self):
+        self.data = np.zeros((100, 240))
+
+    def add_data(self, dw_i: np.array):
+        pass

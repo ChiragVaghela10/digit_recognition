@@ -50,7 +50,11 @@ class GradientDescent(Optimizer):
     def compute_gradient(x: np.ndarray, y: np.ndarray, y_hat: np.array) -> Tuple[np.ndarray, np.ndarray]:
         samples = y.shape[0]
 
-        dw = np.dot((y_hat - y).T, x) / samples             # COMPUTE LOSS
+        # NOTE: The implementation explained in Andrew Ng's course defines X as (n X m) while I used X as (m X n).
+        # This different has led to the interchange of variables in the np.dot() function call which is performing
+        # matrix multiplication of X (m X n) and dz = (y_hat - y) = (a - y) having dimensions (m X l). where, l is
+        # number of nodes. Refer comments in compute_fx for explanation. Therefore, result (dw) is (l X n).
+        dw = np.dot((y_hat - y).T, x) / samples
         db = (y_hat - y).sum(axis=0) / samples
 
         return dw, db
