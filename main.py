@@ -51,16 +51,16 @@ trained_model_paras = regressor.train(
     optimizer=gradient_descent,
     activation=activation_function,
     learning_rate=1e-2,
-    iterations=100
+    iterations=500
 )
 
 # Load saved weights to avoid training
 # trained_model_paras = RegressorModelParameters()
 # trained_model_paras.load_optimum_weights(filepath=WEIGHTS_DIR)
 
-plot_cost(filepath=ROOT_DIR / Path('results/lr_cost.png'), cost=trained_model_paras.load_plot_history())
+plot_cost(filepath=ROOT_DIR / Path('results/logistic_regression_cost.png'), cost=trained_model_paras.load_plot_history())
 y_pred = regressor.predict(xTest=X_test, parameters=trained_model_paras, activation=activation_function)
-plot_result(filepath=ROOT_DIR / Path('results/lr_result.png'), pred=y_pred, target=y_test)
+plot_result(filepath=ROOT_DIR / Path('results/logistic_regression_result.png'), pred=y_pred, target=y_test)
 
 # Prediction of random sample
 # random_digit = np.random.randint(0, 10)

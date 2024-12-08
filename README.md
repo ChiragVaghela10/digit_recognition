@@ -39,26 +39,33 @@ Maximum of predicted values (10,) obtained by model is used to determine the pre
 prediction of the model is [0.0234, 0.0263, 0.0163, 8.462, 0.1643, 0.2351, 0.0432, 0.2785, 0.5488, 0.0462], the
 predicted digit would be '3'.
 
-The model can be considered as neural network of 1 layer having 10 nodes and 'linear' activation function.
+The model can be considered as neural network of 1 layer having 10 nodes and 'linear' activation function but without
+forward and backward propagation.
 
 ### Results
-implemented. updating README In progress...
+Multiple Linear Regressions (10) were trained for 500 iterations to get average prediction accuracy of 99.0 % for all 
+digits.
 
+Cost vs Iterations                         |               Accuracy               | Random Sample                                |
+:-----------------------------------------:|:------------------------------------:|:---------------------------------------------|
+![Cost vs Iterations](results/linear_regression_cost.png) |  ![Accuracy](results/linear_regression_result.png)  | ![Predictions](results/lr_random_sample.png) |
 
-![Prediciton Output](results/lr_prediction.png)
 
 ## Logistic Regression
 
 ### Algorithm
-implemented. updating README In progress...
+Multiple Logistic Regressions (10) units were trained for predicting digits. Logistic Units are better suitable to
+detect digits. Since, each unit would have binary (Yes/No) output.
+
+The model was trained for 500 iterations to get average prediction accuracy of 99.1 % for all digits.
 
 ### Results
-Cost vs Iterations                         |               Accuracy               | Random Sample                                    |
-:-----------------------------------------:|:------------------------------------:|:-------------------------------------------------|
-![Cost vs Iterations](results/lr_cost.png) |  ![Accuracy](results/lr_result.png)  | ![Random Sample](ml/experiments/plots/lr_learning_plot.png) 
+Cost vs Iterations                         |               Accuracy               | Curve Approximation vs Iterations                           |
+:-----------------------------------------:|:------------------------------------:|:------------------------------------------------------------|
+![Cost vs Iterations](results/logistic_regression_cost.png) |  ![Accuracy](results/logistic_regression_result.png)  | ![Random Sample](ml/experiments/plots/lr_learning_plot.png) |
 
 ## K-Nearest Neighbours
-
+NOTE: In progress...
 ### Algorithm
 
 1. Find the K Nearest Neighbors based on Euclidean Distance between pictures. The value of K = 4 for a single try.
@@ -84,4 +91,4 @@ pip install -r requirements.txt
 ```
 
 ## Future Prospects
-...
+In progress...

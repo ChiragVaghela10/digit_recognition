@@ -17,7 +17,7 @@ class ExpLearningOfPredictedValues:
         plt.title("Prediction of samples for digit '0' in training set vs iterations")
         plt.xlabel("Samples (first 500 out of 1600 samples)")
         plt.ylabel("Prediction (value representing probability of digit being '0')")
-        plt.savefig(f'ml/experiments/plots/learning_plot.png')
+        plt.savefig(f'ml/experiments/plots/linear:_reg_learning_plot.png')
         plt.close()
 
 
