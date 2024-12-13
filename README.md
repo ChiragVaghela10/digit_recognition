@@ -11,7 +11,7 @@ each picture is 16X15 and stored as a array of 240 integers (ranging 0-6).
 
 The following figure shows 10 pictures of each digit (0-9) using data from digit picture dataset file (mfeat-pix.txt):
 <br/><br/>
-![Digits Pictures](blob/Digit_Pictures.png)
+![Digits Pictures](old_code/blob/Digit_Pictures.png)
 
 ### Data Preprocessing
 
@@ -81,7 +81,7 @@ The project also evaluate accuracy versus K number of neighbors.
 ### Results
 
 The following figure shows graph of accuracy vs K neighbors:<br/><br/>
-![Accuracy vs K](blob/Accuracy_vs_K.png)
+![Accuracy vs K](old_code/blob/Accuracy_vs_K.png)
 
 ## Installation
 1. Create a virtual environment.

@@ -1,4 +1,4 @@
-from decorators.decorators import timer
+from old_code.decorators.decorators import timer
 from . import utilities
 
 
