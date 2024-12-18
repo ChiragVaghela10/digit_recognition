@@ -4,7 +4,7 @@ from typing import Tuple
 import numpy as np
 
 from ml.activation_functions import ActivationFunction
-from ml.experiments.test import ExpLearningOfPredictedValues
+from ml.experiments.experiment import ExpLearningOfPredictedValues
 
 
 class Optimizer(ABC):
