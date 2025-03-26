@@ -1,42 +1,44 @@
-import operator
-import collections as cl
 import numpy as np
+import matplotlib.pyplot as plt
 
-def euDistance(pointA, pointB):
-    return np.sqrt(np.sum((pointA - pointB) ** 2))
-
-
-def findNeighbours(testSample, trainData, k):
-    distances = []
-
-    i = 0
-    for trainDigit in trainData:
-        j = 0
-        for trainSample in trainDigit:
-            distance = euDistance(testSample, trainSample)
-            distances.append((i, j, distance))
-            j += 1
-        i += 1
-    # Sort distances based on distance, which is on index 2
-    sorted_list = sorted(distances, key=operator.itemgetter(2))
-    # print(len(sorted_list))
-    return sorted_list[:k]
+from constants import *
 
 
-def findSampleClass(neighbours):
-    # Counting is done based on row (0th index) of tuple
-    classes_with_freq = cl.Counter([x[0] for x in neighbours])
-    # print(classes_with_freq)
+def shuffle_dataset(data: np.array, labels: np.array) -> (np.array, np.array):
+    """
+    Shuffles the dataset and labels.
 
-    # Key (class of sample) is obtained based on highest value (count of neighbours)
-    # NOTE: If 2 classes are having same count than first class will be chosen as sample class
-    sampleClass = max(classes_with_freq.items(), key=operator.itemgetter(1))[0]
-    return sampleClass
+    data: dataset to be shuffled.
+    labels: labels to be shuffled.
+    """
+    np.random.seed(42)  # Ensuring reproducibility
+    shuffled_indices = np.random.permutation(len(data))
+    data = data[shuffled_indices]
+    labels = labels[shuffled_indices]
+    return data, labels
 
 
-def findAccuracy(testedSamples):
-    correctPredictions = 0
-    for prediction in testedSamples:
-        if prediction[0] == prediction[2]:
-            correctPredictions += 1
-    return correctPredictions / len(testedSamples)
+def split_dataset(data: np.array, labels: np.array, split_ratio: float):
+    """
+    Splits dataset into train and test sets.
+
+    data: dataset to be split.
+    labels: labels to be split.
+    split_ratio: proportion of the dataset to be split.
+    """
+    train_size = int(len(data) * split_ratio)
+    train_data, test_data = data[:train_size], data[train_size:]
+    train_labels, test_labels = labels[:train_size], labels[train_size:]
+    return train_data, train_labels, test_data, test_labels
+
+
+def plot_samples(data: np.array, labels: np.array, num_per_class: int) -> None:
+    """Plots sample images from the dataset."""
+    fig, axes = plt.subplots(num_per_class, total_digits, figsize=(10, 10))
+    for digit in range(total_digits):
+        for j in range(num_per_class):
+            pic = data[labels == digit][j].reshape(16, 15)
+            axes[j, digit].imshow(-pic, cmap='gray')
+            axes[j, digit].axis('off')
+    plt.show()
+

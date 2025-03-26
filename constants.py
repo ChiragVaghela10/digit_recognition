@@ -1,4 +1,4 @@
 total_digits = 10
-digits_repetition = 200
+digits_per_class = 200
 image_size = 16 * 15
-trainRatio = 0.8
+train_ratio = 0.8
