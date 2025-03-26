@@ -1,10 +1,9 @@
 import operator
 import collections as cl
-
+import numpy as np
 
 def euDistance(pointA, pointB):
-    distance = pow((pointA - pointB), 2)
-    return pow(sum(distance), 0.5)
+    return np.sqrt(np.sum((pointA - pointB) ** 2))
 
 
 def findNeighbours(testSample, trainData, k):
