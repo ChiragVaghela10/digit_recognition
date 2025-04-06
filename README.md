@@ -9,9 +9,7 @@ reshaped into a 240-dimensional feature vector. The dataset contains 2000 images
 The following figure shows 10 pictures of each digit (0-9) using data from digit picture dataset file (mfeat-pix.txt):
 <br/>
 
-<img src="blob/Digit_Pictures.png" width="700"><br/><br/>
-The following figure shows graph of accuracy vs K neighbors:<br/><br/>
-<img src="blob/Accuracy_vs_K.png" width="700">
+<img src="blob/Digit_Pictures.png" width="700"><br/>
 
 ## Dataset
 
@@ -49,9 +47,17 @@ The KNN classification algorithm is implemented from scratch using NumPy, follow
 - The highest accuracy (~98%) is observed when K=3. This means that considering a small number of nearest neighbors 
 leads to better classification.
 - As K increases, accuracy gradually declines. This could be due to the inclusion of more distant neighbors, which 
-introduces noise and misclassification.
+introduces noise and misclassification. After K=10, accuracy stabilizes but then starts declining more sharply. We can
+observe from the plot obtained after performing PCA to reduce 240 dimentional image samples to 2D samples. This provides 
+way to visualize how image samples cluster in data space.
 - Based on the graph, K=3 or K=5 seem to be the best choices. A too-small K (e.g., K=1) might lead to overfitting, while
 a too-large K reduces accuracy due to class overlap.
+
+The following figure shows plot for reducing 240D image samples to 2D samples:<br/><br/>
+<img src="blob/PCA_analysis.png" width="700"><br/><br/>
+
+The following figure shows graph of accuracy vs K neighbors:<br/><br/>
+<img src="blob/Accuracy_vs_K.png" width="700"><br/><br/>
 
 ## How to Run
 ```
