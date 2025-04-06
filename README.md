@@ -48,7 +48,8 @@ The KNN classification algorithm is implemented from scratch using NumPy, follow
 leads to better classification.
 - As K increases, accuracy gradually declines. This could be due to the inclusion of more distant neighbors, which 
 introduces noise and misclassification. After K=10, accuracy stabilizes but then starts declining more sharply. We can
-observe from the plot obtained after performing PCA to reduce 240 dimentional image samples to 2D samples.
+observe from the plot obtained after performing PCA to reduce 240 dimentional image samples to 2D samples. This provides 
+way to visualize how image samples cluster in data space.
 - Based on the graph, K=3 or K=5 seem to be the best choices. A too-small K (e.g., K=1) might lead to overfitting, while
 a too-large K reduces accuracy due to class overlap.
 
