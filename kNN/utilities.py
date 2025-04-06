@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
 
 from constants import *
 
@@ -42,3 +43,31 @@ def plot_samples(data: np.array, labels: np.array, num_per_class: int) -> None:
             axes[j, digit].axis('off')
     plt.show()
 
+
+def plot_clusters(X: np.array, y: np.array) -> None:
+    pca = PCA(n_components=2)
+    X_reduced = pca.fit_transform(X)
+
+    # Plot the reduced data
+    plt.figure(figsize=(10, 6))
+    scatter = plt.scatter(X_reduced[:, 0], X_reduced[:, 1], c=y, cmap='tab10', alpha=0.7, edgecolor='k')
+    plt.title("PCA Visualization of Handwritten Digits")
+    plt.xlabel("Principal Component 1")
+    plt.ylabel("Principal Component 2")
+    plt.legend(*scatter.legend_elements(), title="Digits", bbox_to_anchor=(1.05, 1), loc="upper left")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig('blob/PCA_analysis.png')
+
+
+def plot_accuracies(accuracies: np.array, max_acc: float, k: int) -> None:
+    print(f'Optimal K: {k}, Accuracy: {max_acc:.2f}')
+    for k, acc in accuracies:
+        print(f'K={k}: {acc:.2f}%')
+
+    # Plot accuracy vs k
+    plt.plot([k for k, _ in accuracies], [acc for _, acc in accuracies], marker='o')
+    plt.title('KNN Accuracy vs K')
+    plt.xlabel('K Neighbors')
+    plt.ylabel('Accuracy')
+    plt.savefig('blob/Accuracy_vs_K.png')
