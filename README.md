@@ -9,8 +9,27 @@ reshaped into a 240-dimensional feature vector. The dataset contains 2000 images
 The following figure shows 10 pictures of each digit (0-9) using data from digit picture dataset file (mfeat-pix.txt):
 <br/>
 
+<<<<<<< Updated upstream
 <img src="blob/Digit_Pictures.png" width="700"><br/>
 
+=======
+<<<<<<< Updated upstream
+The following figure shows graph of accuracy vs K neighbors:
+![Accuracy vs K](blob/Accuracy_vs_K.png)
+
+### Installation
+1. Create a virtual environment.
+2. Use `requirements.txt` to install the required libraries as follows:
+=======
+<img src="blob/Digit_Pictures.png" width="700"><br/><br/>
+
+The following figure shows plot for reducing 240D image samples to 2D samples:<br/><br/>
+<img src="blob/PCA_analysis.png" width="700"><br/><br/>
+
+The following figure shows graph of accuracy vs K neighbors:<br/><br/>
+<img src="blob/Accuracy_vs_K.png" width="700"><br/><br/>
+
+>>>>>>> Stashed changes
 ## Dataset
 
 - File: data/mfeat-pix.txt
@@ -47,6 +66,7 @@ The KNN classification algorithm is implemented from scratch using NumPy, follow
 - The highest accuracy (~98%) is observed when K=3. This means that considering a small number of nearest neighbors 
 leads to better classification.
 - As K increases, accuracy gradually declines. This could be due to the inclusion of more distant neighbors, which 
+<<<<<<< Updated upstream
 introduces noise and misclassification. After K=10, accuracy stabilizes but then starts declining more sharply. We can
 observe from the plot obtained after performing PCA to reduce 240 dimentional image samples to 2D samples. This provides 
 way to visualize how image samples cluster in data space.
@@ -60,6 +80,19 @@ The following figure shows graph of accuracy vs K neighbors:<br/><br/>
 <img src="blob/Accuracy_vs_K.png" width="700"><br/><br/>
 
 ## How to Run
+=======
+introduces noise and misclassification. After K=10, accuracy stabilizes but then starts declining more sharply.
+- We can observe from the plot obtained after performing PCA to reduce 240 dimentional image samples to 2D samples.
+This provides a way to visualize clusters of image samples in data space. The clusters representing digits are in close 
+proximity leading to lower accuracy for large values of K.
+- Based on the graph, K=3 or K=5 seem to be the best choices. A too-small K (e.g., K=1) might lead to overfitting, while
+a too-large K reduces accuracy due to class overlap.
+
+
+
+## How to Run
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 ```
 python main.py
 ```
